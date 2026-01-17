@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 1. Spring Boot Parent: Manages versions for all Spring dependencies -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.1</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <!-- 2. Project Coordinates -->
+    <groupId>com.plaintext</groupId>
+    <artifactId>plaintext-backend</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging> <!-- CRITICAL: Must be 'pom' for a parent project -->
+
+    <name>Plaintext Backend</name>
+    <description>Parent project for the Plaintext social platform</description>
+
+    <!-- 3. Modules: The Microservices -->
+    <!-- We will create these folders next. If the folders don't exist yet, 
+         you can comment these out temporarily to run 'mvn clean install' -->
+    <modules>
+        <module>plaintext-common</module>
+        <module>plaintext-auth</module>
+        <module>plaintext-core</module>
+<!--        <module>plaintext-moderation</module>-->
+    </modules>
+
+    <properties>
+        <java.version>21</java.version>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!-- 4. Global Dependencies: Available to ALL modules -->
+    <dependencies>
+        <!-- Lombok: Boilerplate reduction (Getters, Setters, Builders) -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        
+        <!-- Testing: JUnit 5, Mockito -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- 5. Dependency Management: Define versions here, but don't include them yet -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Cloud for future microservice patterns (Gateway, Eureka) -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            <!-- Internal Module Dependencies -->
+            <dependency>
+                <groupId>com.plaintext</groupId>
+                <artifactId>plaintext-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Parent pom should not be executed as an application -->
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -1,0 +1,26 @@
+server:
+  port: 8082 # Runs on 8082 (Auth is on 8081)
+
+spring:
+  application:
+    name: plaintext-core
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/plaintext_db
+    username: plaintext_user
+    password: plaintext_password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # We just want to check the schema, not change it
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Must match Auth Service to validate tokens!
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 86400000
