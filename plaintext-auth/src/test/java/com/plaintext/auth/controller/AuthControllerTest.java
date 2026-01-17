@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -69,16 +70,17 @@ class AuthControllerTest {
     @Test
     void loginUser_Success() throws Exception {
         LoginRequest request = new LoginRequest("user", "password");
-        AuthResponse response = new AuthResponse("token", "user", "user@test.com", "USER");
+        AuthResponse authResponse = new AuthResponse("jwt-token", "user", "test@example.com", "USER", false);
 
-        when(authService.authenticateUser(any(LoginRequest.class))).thenReturn(response);
+        when(authService.authenticateUser(any(LoginRequest.class))).thenReturn(authResponse);
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("token"))
-                .andExpect(jsonPath("$.username").value("user"));
+                .andExpect(jsonPath("$.token").value("jwt-token"))
+                .andExpect(jsonPath("$.username").value("user"))
+                .andExpect(jsonPath("$.requiresTncAcceptance").value(false));
     }
 
     @Test
@@ -92,5 +94,17 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized()); // SecurityExceptionHandler handles this
+    }
+
+    @Test
+    void acceptTnc_Success() throws Exception {
+        java.security.Principal principal = new UsernamePasswordAuthenticationToken("user", null);
+
+        mockMvc.perform(post("/api/auth/tnc/accept")
+                .principal(principal))
+                .andExpect(status().isOk());
+
+        // Verify service was called with correct username
+        org.mockito.Mockito.verify(authService).acceptTnc("user");
     }
 }

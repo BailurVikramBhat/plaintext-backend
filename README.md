@@ -56,7 +56,9 @@ Service runs on port: `8082`
 
 ### Authentication (Port 8081)
 *   **POST** `/api/auth/signup` - Register a new user account.
-*   **POST** `/api/auth/login` - Authenticate and receive a JWT.
+*   **POST** `/api/auth/login` - Authenticate and receive a JWT. The response includes a `requiresTncAcceptance` flag (boolean). If `true`, the user must accept the latest T&C.
+*   **GET** `/api/auth/tnc` - Retrieve the current Terms and Conditions version and text content.
+*   **POST** `/api/auth/tnc/accept` - Accept the current Terms and Conditions (Requires Authentication).
 
 ### Core (Port 8082)
 *   **POST** `/api/posts` - Create a new post (Requires Authentication).

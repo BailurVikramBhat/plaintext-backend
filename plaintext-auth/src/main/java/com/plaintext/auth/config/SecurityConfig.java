@@ -1,5 +1,6 @@
 package com.plaintext.auth.config;
 
+import com.plaintext.auth.security.JwtAuthenticationFilter;
 import com.plaintext.common.security.CommonAuthEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,6 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CommonAuthEntryPoint authEntryPoint;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     /**
      * The Security Filter Chain defines which requests are allowed.
@@ -38,14 +41,17 @@ public class SecurityConfig {
 
                 // 3. Define Access Rules
                 .authorizeHttpRequests(auth -> auth
-                        // ALLOW anyone to access auth endpoints (Login, Signup)
-                        .requestMatchers("/api/auth/**").permitAll()
-                        // BLOCK everything else (must be authenticated)
+                        // Public Endpoints
+                        .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/tnc").permitAll()
+                        // Protected Endpoints (everything else)
                         .anyRequest().authenticated())
 
                 // 4. Exception Handling
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(authEntryPoint));
+                        .authenticationEntryPoint(authEntryPoint))
+
+                // 5. Add JWT Filter
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

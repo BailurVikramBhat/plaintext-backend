@@ -60,4 +60,7 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "last_accepted_tnc_version")
+    private String lastAcceptedTncVersion;
 }
