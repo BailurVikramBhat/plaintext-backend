@@ -5,6 +5,7 @@ import com.plaintext.auth.dto.LoginRequest;
 import com.plaintext.auth.dto.SignupRequest;
 import com.plaintext.auth.repository.UserRepository;
 import com.plaintext.auth.util.JwtUtils;
+import com.plaintext.common.config.TncConfig;
 import com.plaintext.common.enums.UserRole;
 import com.plaintext.common.model.User;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,8 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(request.getPassword())) // CRITICAL: Hash password!
                 .bio(request.getBio())
                 .role(UserRole.USER) // Default role
+                .lastAcceptedTncVersion(TncConfig.CURRENT_TNC_VERSION) // Implicit
+                                                                       // acceptance
                 .build();
 
         userRepository.save(user);
@@ -55,30 +58,38 @@ public class AuthService {
      * LOGIN USER
      * 1. Authenticate with Spring Security (checks password match).
      * 2. Generate JWT.
-     * 3. Return Token + User Info.
+     * 3. Return Token + User Info + T&C Status.
      */
     public AuthResponse authenticateUser(LoginRequest request) {
-        // 1. Authenticate
-        // This line triggers the AuthenticationManager.
-        // It will load the user from the DB and compare the hashed passwords.
-        // If it fails, it throws a BadCredentialsException.
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-        // 2. Set Context (Optional for stateless, but good practice)
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // 3. Generate JWT
         String jwt = jwtUtils.generateToken(request.getUsername());
 
-        // 4. Fetch User Details to return to client
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new com.plaintext.common.exception.ResourceNotFoundException("User not found"));
+
+        // Check T&C Version
+        boolean requiresTnc = !TncConfig.CURRENT_TNC_VERSION
+                .equals(user.getLastAcceptedTncVersion());
 
         return new AuthResponse(
                 jwt,
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole().name());
+                user.getRole().name(),
+                requiresTnc);
+    }
+
+    /**
+     * UPDATE T&C STATUS
+     */
+    public void acceptTnc(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new com.plaintext.common.exception.ResourceNotFoundException("User not found"));
+
+        user.setLastAcceptedTncVersion(TncConfig.CURRENT_TNC_VERSION);
+        userRepository.save(user);
     }
 }

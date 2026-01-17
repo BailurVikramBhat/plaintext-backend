@@ -11,13 +11,14 @@ public class AuthResponse {
     private String username;
     private String email;
     private String role;
+    private boolean requiresTncAcceptance;
 
-
-    public AuthResponse(String token, String username, String email, String role) {
+    public AuthResponse(String token, String username, String email, String role, boolean requiresTncAcceptance) {
         this.token = token;
         this.username = username;
         this.email = email;
         this.role = role;
+        this.requiresTncAcceptance = requiresTncAcceptance;
         this.type = "Bearer";
     }
 }

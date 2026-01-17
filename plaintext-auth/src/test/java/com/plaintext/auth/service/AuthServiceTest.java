@@ -84,6 +84,8 @@ class AuthServiceTest {
         assertNotNull(response);
         assertEquals("jwt-token", response.getToken());
         assertEquals("user", response.getUsername());
+        assertTrue(response.isRequiresTncAcceptance()); // New user created with builder might not match config if we
+                                                        // don't set it in test data
     }
 
     @Test

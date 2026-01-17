@@ -40,4 +40,14 @@ public class AuthController {
         // automatically.
         return ResponseEntity.ok(authService.authenticateUser(request));
     }
+
+    /**
+     * POST /api/auth/tnc/accept
+     * Records the user's acceptance of the current T&C version.
+     */
+    @PostMapping("/tnc/accept")
+    public ResponseEntity<?> acceptTnc(org.springframework.security.core.Authentication authentication) {
+        authService.acceptTnc(authentication.getName());
+        return ResponseEntity.ok("Terms and Conditions accepted.");
+    }
 }
