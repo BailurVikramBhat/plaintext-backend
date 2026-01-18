@@ -47,8 +47,7 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(request.getPassword())) // CRITICAL: Hash password!
                 .bio(request.getBio())
                 .role(UserRole.USER) // Default role
-                .lastAcceptedTncVersion(TncConfig.CURRENT_TNC_VERSION) // Implicit
-                                                                       // acceptance
+                .lastAcceptedTncVersion(null)
                 .build();
 
         userRepository.save(user);
